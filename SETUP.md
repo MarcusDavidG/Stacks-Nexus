@@ -1,36 +1,39 @@
-# Setup Guide
+# Setup Guide - Nexus Protocol
 
 ## Push to GitHub
 
-1. Create a new repository on GitHub (don't initialize with README)
+1. Create a new repository on GitHub named "nexus" (don't initialize with README)
 
 2. Add remote and push:
 ```bash
-cd /home/marcus/lending-pool-standalone
-git remote add origin https://github.com/YOUR_USERNAME/lending-pool.git
+cd /home/marcus/nexus
+git remote add origin https://github.com/YOUR_USERNAME/nexus.git
 git push -u origin main
 ```
 
 ## Stacks Builder Rewards Application
 
-### Required Information
+### Project Information
 
-**Project Name**: Lending Pool Protocol
+**Project Name**: Nexus - The Connected Lending Protocol
+
+**Tagline**: Connecting Capital on Stacks
 
 **Contract Address**: `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool`
 
 **Transaction ID**: `0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6`
 
 **Description**: 
-A decentralized lending pool protocol enabling users to deposit STX, earn interest, and borrow against collateral. Features include automated interest calculation, collateralization requirements, and comprehensive pool management.
+Nexus is a decentralized lending protocol that seamlessly connects lenders and borrowers on the Stacks blockchain. Users can deposit STX to earn yield or borrow against their collateral with transparent, on-chain terms. Built with Clarity for maximum security and predictability.
 
 **Key Features**:
-- Deposit/Withdraw functionality with interest accrual
-- Collateralized borrowing system
-- Real-time pool statistics
-- Full Stacks SDK integration
-- React frontend with wallet connection
-- Comprehensive testing suite
+- Seamless deposit/withdraw with automatic yield accrual
+- Collateralized borrowing system with transparent terms
+- Real-time pool statistics and analytics
+- Full Stacks SDK integration for easy development
+- React frontend with Stacks Connect wallet integration
+- Comprehensive testing suite and documentation
+- Live on mainnet with active deployment
 
 **Technology Stack**:
 - Smart Contract: Clarity

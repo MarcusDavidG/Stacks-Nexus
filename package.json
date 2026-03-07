@@ -1,8 +1,8 @@
 
 {
-  "name": "lending-pool-tests",
+  "name": "nexus-protocol",
   "version": "1.0.0",
-  "description": "Run unit tests on this project.",
+  "description": "The Connected Lending Protocol on Stacks",
   "type": "module",
   "private": true,
   "scripts": {

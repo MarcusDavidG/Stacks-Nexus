@@ -1,20 +1,25 @@
-# Lending Pool - Stacks Smart Contract
+# Nexus
 
-A decentralized lending pool protocol on the Stacks blockchain enabling users to deposit STX, borrow against collateral, and earn interest.
+**The Connected Lending Protocol on Stacks**
 
-## 🚀 Mainnet Deployment
+Nexus is a decentralized lending protocol on the Stacks blockchain that connects lenders and borrowers seamlessly. Deposit STX to earn yield, or borrow against your collateral with transparent, on-chain terms.
 
-**Contract Address**: `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool`  
-**Transaction ID**: `0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6`  
-**Deployed By**: `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP`
+## 🚀 Live on Stacks Mainnet
 
-## ✨ Features
+**Contract**: `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool`  
+**TX**: `0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6`  
+**Status**: ✅ Active
 
-- **Deposit & Withdraw**: Users can deposit STX to earn interest
-- **Borrow & Repay**: Borrow STX against deposited collateral
-- **Interest Accrual**: Automatic interest calculation for lenders
-- **Collateralization**: Secure borrowing with collateral requirements
-- **Pool Management**: Track total deposits, borrows, and available liquidity
+[View on Explorer](https://explorer.stacks.co/txid/0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6)
+
+## ✨ Why Nexus?
+
+- **Connected**: Seamlessly links lenders and borrowers in a trustless environment
+- **Transparent**: All terms and rates visible on-chain
+- **Secure**: Built with Clarity for maximum security and predictability
+- **Yield-Generating**: Earn passive income on deposited STX
+- **Flexible**: Borrow against your assets without selling
+- **Decentralized**: No intermediaries, pure DeFi
 
 ## 🏗 Architecture
 
@@ -47,8 +52,8 @@ A decentralized lending pool protocol on the Stacks blockchain enabling users to
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd lending-pool-standalone
+git clone https://github.com/YOUR_USERNAME/nexus.git
+cd nexus
 
 # Install dependencies
 npm install
@@ -82,26 +87,26 @@ npm test
 
 ## 📖 Usage Examples
 
-### Deposit STX
+### Deposit & Earn
 
 ```typescript
 import { LendingPoolSDK } from './src/stacks-sdk';
 
-const sdk = new LendingPoolSDK(true); // true for mainnet
-await sdk.deposit(senderKey, 1000000); // Deposit 1 STX
+const nexus = new LendingPoolSDK(true); // mainnet
+await nexus.deposit(senderKey, 1000000); // Deposit 1 STX, start earning
 ```
 
-### Borrow STX
+### Borrow Against Collateral
 
 ```typescript
-await sdk.borrow(senderKey, 500000); // Borrow 0.5 STX
+await nexus.borrow(senderKey, 500000); // Borrow 0.5 STX
 ```
 
-### Check Balance
+### Track Your Position
 
 ```typescript
-const balance = await sdk.getUserBalance(userAddress);
-console.log(`Balance: ${balance} microSTX`);
+const balance = await nexus.getUserBalance(userAddress);
+const stats = await nexus.getPoolStats();
 ```
 
 ## 🎯 Roadmap
@@ -149,4 +154,4 @@ MIT License
 
 ---
 
-**Built for the Stacks ecosystem** 🚀
+**Nexus - Connecting Capital on Stacks** 🔗
