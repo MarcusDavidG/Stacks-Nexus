@@ -150,7 +150,7 @@ MIT License
 
 - [Stacks Explorer](https://explorer.stacks.co/txid/0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6)
 - [Contract Address](https://explorer.stacks.co/address/SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool)
-- [Stacks Builder Rewards](https://talent.app/~/earn/stacks-builder-rewards-mar)
+
 
 ---
 
