@@ -6,11 +6,14 @@ Nexus is a decentralized lending protocol on the Stacks blockchain that connects
 
 ## 🚀 Live on Stacks Mainnet
 
-**Contract**: `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool`  
-**TX**: `0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6`  
-**Status**: ✅ Active
+| Version | Contract | Status |
+|---------|----------|--------|
+| v1 (deprecated) | `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool` | ⚠️ Withdraw/borrow broken |
+| **v8 (current)** | `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool-v8` | ✅ Active |
 
-[View on Explorer](https://explorer.stacks.co/txid/0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6)
+**Latest Deploy TX**: `0x5f044f3a1c83a809fe83c23d8eb5e89f2adb440f5769f0c601ad43a719851098`
+
+[View on Explorer](https://explorer.hiro.so/txid/0x5f044f3a1c83a809fe83c23d8eb5e89f2adb440f5769f0c601ad43a719851098?chain=mainnet)
 
 ## ✨ Why Nexus?
 
@@ -89,24 +92,34 @@ npm test
 
 ### Deposit & Earn
 
-```typescript
-import { LendingPoolSDK } from './src/stacks-sdk';
+```bash
+SENDER_KEY=<hex-private-key> npx tsx interact.ts deposit 1
+```
 
-const nexus = new LendingPoolSDK(true); // mainnet
-await nexus.deposit(senderKey, 1000000); // Deposit 1 STX, start earning
+### Withdraw
+
+```bash
+SENDER_KEY=<hex-private-key> npx tsx interact.ts withdraw 1
 ```
 
 ### Borrow Against Collateral
 
-```typescript
-await nexus.borrow(senderKey, 500000); // Borrow 0.5 STX
+```bash
+# Borrow 1 STX with 1.5 STX collateral (150% ratio)
+SENDER_KEY=<hex-private-key> npx tsx interact.ts borrow 1 1.5
 ```
 
-### Track Your Position
+### Repay Loan
 
-```typescript
-const balance = await nexus.getUserBalance(userAddress);
-const stats = await nexus.getPoolStats();
+```bash
+SENDER_KEY=<hex-private-key> npx tsx interact.ts repay
+```
+
+### Check Your Position
+
+```bash
+npx tsx interact.ts get-deposit <your-address>
+npx tsx interact.ts get-loan    <your-address>
 ```
 
 ## 🎯 Roadmap
@@ -148,8 +161,8 @@ MIT License
 
 ## 🔗 Links
 
-- [Stacks Explorer](https://explorer.stacks.co/txid/0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6)
-- [Contract Address](https://explorer.stacks.co/address/SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool)
+- [Stacks Explorer - v8 Deploy](https://explorer.hiro.so/txid/0x5f044f3a1c83a809fe83c23d8eb5e89f2adb440f5769f0c601ad43a719851098?chain=mainnet)
+- [Contract Address](https://explorer.hiro.so/address/SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool-v8?chain=mainnet)
 - [Stacks Builder Rewards](https://talent.app/~/earn/stacks-builder-rewards-mar)
 
 ---
