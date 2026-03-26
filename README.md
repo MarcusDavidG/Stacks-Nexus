@@ -10,7 +10,9 @@ Nexus is a decentralized lending protocol on the Stacks blockchain that connects
 **TX**: `0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6`  
 **Status**:  Active
 
-[View on Explorer](https://explorer.stacks.co/txid/0x75eb01d33d5256b2b4fff3b4c711d1a0d6173e6e58b2c5c3c3867f855806add6)
+**Latest Deploy TX**: `0x5f044f3a1c83a809fe83c23d8eb5e89f2adb440f5769f0c601ad43a719851098`
+
+[View on Explorer](https://explorer.hiro.so/txid/0x5f044f3a1c83a809fe83c23d8eb5e89f2adb440f5769f0c601ad43a719851098?chain=mainnet)
 
 ##  Why Nexus?
 
@@ -89,24 +91,34 @@ npm test
 
 ### Deposit & Earn
 
-```typescript
-import { LendingPoolSDK } from './src/stacks-sdk';
+```bash
+SENDER_KEY=<hex-private-key> npx tsx interact.ts deposit 1
+```
 
-const nexus = new LendingPoolSDK(true); // mainnet
-await nexus.deposit(senderKey, 1000000); // Deposit 1 STX, start earning
+### Withdraw
+
+```bash
+SENDER_KEY=<hex-private-key> npx tsx interact.ts withdraw 1
 ```
 
 ### Borrow Against Collateral
 
-```typescript
-await nexus.borrow(senderKey, 500000); // Borrow 0.5 STX
+```bash
+# Borrow 1 STX with 1.5 STX collateral (150% ratio)
+SENDER_KEY=<hex-private-key> npx tsx interact.ts borrow 1 1.5
 ```
 
-### Track Your Position
+### Repay Loan
 
-```typescript
-const balance = await nexus.getUserBalance(userAddress);
-const stats = await nexus.getPoolStats();
+```bash
+SENDER_KEY=<hex-private-key> npx tsx interact.ts repay
+```
+
+### Check Your Position
+
+```bash
+npx tsx interact.ts get-deposit <your-address>
+npx tsx interact.ts get-loan    <your-address>
 ```
 
 ##  Roadmap
