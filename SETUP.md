@@ -99,4 +99,3 @@ clarinet deploy --testnet
 
 - Stacks Discord: https://discord.gg/stacks
 - Stacks Forum: https://forum.stacks.org
-- Builder Rewards: https://talent.app/~/earn/stacks-builder-rewards-mar

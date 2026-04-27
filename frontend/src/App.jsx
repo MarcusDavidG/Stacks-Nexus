@@ -1,8 +1,8 @@
 import { SignClient } from "@walletconnect/sign-client";
 import { WalletConnectModal } from "@walletconnect/modal";
 import { useState, useEffect } from "react";
-import { StacksMainnet } from "@stacks/network";
-import { makeContractCall, uintCV, cvToJSON, TransactionVersion } from "@stacks/transactions";
+import { StacksMainnet } from "@stacks/network/dist/index.js";
+import { makeContractCall, uintCV, cvToJSON } from "@stacks/transactions";
 import { Buffer } from "buffer";
 
 // Polyfill Buffer for WalletConnect and Stacks.js
@@ -128,12 +128,11 @@ function App() {
         contractName,
         functionName: "deposit",
         functionArgs: functionArgs,
-        senderKey: address, // This will be replaced by the wallet's key
+        senderKey: address,
         network,
-        postConditions: [], // Add post-conditions if needed
-        fee: 300, // Example fee
-        nonce: 0, // This will be handled by the wallet
-        txVersion: TransactionVersion.Mainnet,
+        postConditions: [],
+        fee: 300,
+        nonce: 0,
       };
 
       const transaction = await makeContractCall(txOptions);
