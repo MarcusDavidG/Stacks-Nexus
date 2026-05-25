@@ -139,13 +139,8 @@ for (let i = progress.completedCycles; i < CYCLES; i++) {
   await sleep(TX_DELAY);
 }
 
-// Final withdraw
-console.log(`\n\n  All ${CYCLES} deposits sent. Waiting 2 min before withdraw...`);
-await sleep(120_000);
-
-nonce = await getNonce();
-console.log(`  Withdrawing ${progress.deposited} uSTX...`);
-await sendTx(POOL_ADDR, POOL_NAME, 'withdraw', [uintCV(progress.deposited)], nonce);
-
+// Final withdraw skipped — lending-pool v1 withdraw sends back to contract (known bug).
+// Deposits accumulate in the pool. All deposit txs count toward leaderboard.
+console.log(`\n\n  ✅ ${deposited}/${CYCLES} deposits complete. STX remains in pool.`);
 clearProgress();
 console.log(`\n✅ Done! Total cycles completed: ${progress.completedCycles}`);
