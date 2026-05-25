@@ -56,7 +56,7 @@ async function send(addr: string, name: string, fn: string, args: any[]) {
   if (result.error || result.reason) {
     console.error('FAILED:', result.reason ?? result.error);
   } else {
-    console.log(`${fn} txid:`, result.txid);
+    console.log(`${fn} txid:`, result.txid ?? JSON.stringify(result));
   }
 }
 
