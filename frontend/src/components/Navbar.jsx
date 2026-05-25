@@ -28,7 +28,7 @@ export default function Navbar({ address, onConnect, onDisconnect }) {
 }
 
 const s = {
-  nav:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', borderBottom: '1px solid #1a1a26', background: 'rgba(10,10,15,0.8)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 },
+  nav:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', borderBottom: '1px solid #1a1a26', background: 'rgba(10,10,15,0.8)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 },
   right:     { display: 'flex', alignItems: 'center', gap: '0.75rem' },
   connected: { display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#12121a', border: '1px solid #2a2a3a', borderRadius: 8, padding: '0.35rem 0.75rem' },
   dot:       { width: 7, height: 7, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 6px #4ade80' },

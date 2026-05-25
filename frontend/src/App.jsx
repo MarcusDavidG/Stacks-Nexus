@@ -164,7 +164,7 @@ const s = {
   page:        { minHeight: '100vh', background: '#0a0a0f', position: 'relative', overflow: 'hidden' },
   blob1:       { position: 'fixed', top: -200, left: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,111,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' },
   blob2:       { position: 'fixed', bottom: -200, right: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%)', pointerEvents: 'none' },
-  main:        { maxWidth: 820, margin: '0 auto', padding: '2.5rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', zIndex: 1 },
+  main:        { maxWidth: 820, margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', zIndex: 1 },
   hero:        { textAlign: 'center', padding: '2rem 0 1rem' },
   heroTitle:   { fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.15, color: '#e8e8f0', marginBottom: '1rem' },
   heroGradient:{ background: 'linear-gradient(135deg, #7c6fff, #ff6b35)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
