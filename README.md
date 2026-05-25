@@ -11,6 +11,7 @@ Nexus is a decentralized lending protocol on the Stacks blockchain. Deposit STX 
 | Contract | Address | Explorer |
 |---|---|---|
 | `lending-pool` | `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool` | [View](https://explorer.hiro.so/txid/0x5f044f3a1c83a809fe83c23d8eb5e89f2adb440f5769f0c601ad43a719851098?chain=mainnet) |
+| `lending-pool-v2` | `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool-v2` | [View](https://explorer.hiro.so/txid/0x24823b9e158074cf119179448cc85c8cdc375ad778d0d65ad31282d4423c870a?chain=mainnet) |
 | `nexus-checkin` | `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.nexus-checkin` | [View](https://explorer.hiro.so/txid/0x189bf98e3e4e5d95a3cc39e1268172ffcf015b011a10f16d603552253b2e7818?chain=mainnet) |
 | `nexus-polls` | `SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.nexus-polls` | [View](https://explorer.hiro.so/txid/0x09629f1506a4063bf2600c1153b1a9b91112d62723495f4eebcd7e2f39904ae5?chain=mainnet) |
 

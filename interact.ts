@@ -18,7 +18,7 @@ import {
 import { STACKS_MAINNET } from '@stacks/network';
 
 const POOL_ADDR    = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
-const POOL_NAME    = 'lending-pool';
+const POOL_NAME    = 'lending-pool-v2'; // v1 has broken withdraw; v2 is correct
 const CHECKIN_ADDR = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const CHECKIN_NAME = 'nexus-checkin';
 const SENDER_ADDR  = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
