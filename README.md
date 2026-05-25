@@ -98,7 +98,7 @@ cp .env.example .env
 
 **Run the loop:**
 ```bash
-# 700 deposits + check-in + final withdraw (~702 txs, ~1.4 STX)
+# 1000 deposits + check-in + final withdraw (~1002 txs, ~2 STX)
 SENDER_KEY=<hex> npm run loop:checkin
 
 # Custom cycles
