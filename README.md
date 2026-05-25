@@ -87,6 +87,37 @@ npm run dev
 npm test
 ```
 
+### Running the Transaction Loop
+
+**Setup (once after cloning):**
+```bash
+npm install
+cp .env.example .env
+# Edit .env — set SENDER_KEY to your wallet private key (hex)
+```
+
+**Run the loop:**
+```bash
+# 700 deposits + check-in + final withdraw (~702 txs, ~1.4 STX)
+SENDER_KEY=<hex> npm run loop:checkin
+
+# Custom cycles
+SENDER_KEY=<hex> npm run loop -- 500
+
+# Custom cycles + check-in
+SENDER_KEY=<hex> npm run loop -- 500 checkin
+```
+
+**Deploy engagement contracts:**
+```bash
+SENDER_KEY=<hex> SENDER_ADDR=<your-stx-address> npm run deploy:engagement
+```
+
+**Create a community poll:**
+```bash
+SENDER_KEY=<hex> npm run seed:poll
+```
+
 ##  Usage Examples
 
 ### Deposit & Earn
