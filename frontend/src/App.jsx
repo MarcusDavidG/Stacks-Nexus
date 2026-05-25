@@ -58,7 +58,7 @@ export default function App() {
       readOnly(CONTRACTS.checkin, 'get-streak',  [standardPrincipalCV(addr)], addr),
     ]);
     setDeposit(dep);
-    setLoan(ln?.value ? ln.value : null);
+    setLoan(ln && typeof ln === 'object' && 'borrowed' in ln ? ln : null);
     setStreak(str);
   }, []);
 
