@@ -15,7 +15,7 @@ import {
   makeContractCall, PostConditionMode, uintCV, serializeTransaction,
 } from '@stacks/transactions';
 import { STACKS_MAINNET } from '@stacks/network';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 
 const POOL_ADDR    = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const POOL_NAME    = 'lending-pool';
@@ -54,7 +54,6 @@ function saveProgress(p: Progress) {
 
 function clearProgress() {
   if (existsSync(PROGRESS_FILE)) {
-    const { unlinkSync } = require('fs');
     unlinkSync(PROGRESS_FILE);
   }
 }
