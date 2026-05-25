@@ -1,122 +1,102 @@
+/**
+ * interact.ts - CLI for Nexus Protocol
+ *
+ * Usage:
+ *   npx tsx interact.ts get-deposit <address>
+ *   npx tsx interact.ts get-loan    <address>
+ *   SENDER_KEY=<hex> npx tsx interact.ts deposit  <stx>
+ *   SENDER_KEY=<hex> npx tsx interact.ts withdraw <stx>
+ *   SENDER_KEY=<hex> npx tsx interact.ts borrow   <stx> <collateral-stx>
+ *   SENDER_KEY=<hex> npx tsx interact.ts repay
+ *   SENDER_KEY=<hex> npx tsx interact.ts checkin
+ *   npx tsx interact.ts get-streak  <address>
+ */
 import {
-  makeContractCall,
-  broadcastTransaction,
-  AnchorMode,
-  PostConditionMode,
-  uintCV,
-  standardPrincipalCV,
-  fetchCallReadOnlyFunction,
-  cvToValue,
+  makeContractCall, PostConditionMode, uintCV, serializeTransaction,
+  fetchCallReadOnlyFunction, cvToValue, standardPrincipalCV,
 } from '@stacks/transactions';
 import { STACKS_MAINNET } from '@stacks/network';
 
-const CONTRACT_ADDRESS = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
-const CONTRACT_NAME = 'lending-pool-v8';
-const network = STACKS_MAINNET;
+const POOL_ADDR    = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
+const POOL_NAME    = 'lending-pool';
+const CHECKIN_ADDR = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
+const CHECKIN_NAME = 'nexus-checkin';
+const SENDER_ADDR  = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 
-async function getDeposit(user: string) {
-  const result = await fetchCallReadOnlyFunction({
-    contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME,
-    functionName: 'get-deposit',
-    functionArgs: [standardPrincipalCV(user)],
-    network,
-    senderAddress: user,
+const network   = STACKS_MAINNET;
+const senderKey = process.env.SENDER_KEY ?? '';
+const FEE       = 2_000;
+
+async function broadcast(hexStr: string) {
+  const res = await fetch('https://api.mainnet.hiro.so/v2/transactions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: Buffer.from(hexStr, 'hex'),
   });
-  console.log('Deposit balance (uSTX):', cvToValue(result));
+  const text = await res.text();
+  try { return JSON.parse(text); } catch { return { error: text }; }
 }
 
-async function getLoan(user: string) {
-  const result = await fetchCallReadOnlyFunction({
-    contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME,
-    functionName: 'get-loan',
-    functionArgs: [standardPrincipalCV(user)],
-    network,
-    senderAddress: user,
-  });
-  console.log('Loan info:', cvToValue(result));
+async function getNonce() {
+  const res = await fetch(`https://api.mainnet.hiro.so/v2/accounts/${SENDER_ADDR}?proof=0`);
+  const { nonce } = await res.json() as { nonce: number };
+  return nonce;
 }
 
-async function deposit(senderKey: string, amountSTX: number) {
+async function send(addr: string, name: string, fn: string, args: any[]) {
+  const nonce = await getNonce();
   const tx = await makeContractCall({
-    contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME,
-    functionName: 'deposit',
-    functionArgs: [uintCV(amountSTX * 1_000_000)],
-    senderKey,
-    network,
-    anchorMode: AnchorMode.Any,
+    contractAddress: addr, contractName: name,
+    functionName: fn, functionArgs: args,
+    senderKey, network,
     postConditionMode: PostConditionMode.Allow,
-    fee: 3000,
+    fee: FEE, nonce,
   });
-  const result = await broadcastTransaction({ transaction: tx, network });
-  if ('error' in result) { console.error('broadcast error:', result.error, result.reason); process.exit(1); }
-  console.log('deposit txid:', result.txid);
+  const result = await broadcast(serializeTransaction(tx));
+  if (result.error || result.reason) {
+    console.error('FAILED:', result.reason ?? result.error);
+  } else {
+    console.log(`${fn} txid:`, result.txid);
+  }
 }
 
-async function borrow(senderKey: string, amountSTX: number, collateralSTX: number) {
-  const tx = await makeContractCall({
-    contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME,
-    functionName: 'borrow',
-    functionArgs: [uintCV(amountSTX * 1_000_000), uintCV(collateralSTX * 1_000_000)],
-    senderKey,
-    network,
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
+async function readOnly(addr: string, name: string, fn: string, args: any[], sender: string) {
+  const res = await fetchCallReadOnlyFunction({
+    contractAddress: addr, contractName: name,
+    functionName: fn, functionArgs: args,
+    network, senderAddress: sender,
   });
-  const result = await broadcastTransaction({ transaction: tx, network });
-  console.log('borrow txid:', result.txid);
+  return cvToValue(res);
 }
-
-async function repay(senderKey: string) {
-  const tx = await makeContractCall({
-    contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME,
-    functionName: 'repay',
-    functionArgs: [],
-    senderKey,
-    network,
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
-  });
-  const result = await broadcastTransaction({ transaction: tx, network });
-  console.log('repay txid:', result.txid);
-}
-
-async function withdraw(senderKey: string, amountSTX: number) {
-  const tx = await makeContractCall({
-    contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME,
-    functionName: 'withdraw',
-    functionArgs: [uintCV(amountSTX * 1_000_000)],
-    senderKey,
-    network,
-    anchorMode: AnchorMode.Any,
-    postConditionMode: PostConditionMode.Allow,
-  });
-  const result = await broadcastTransaction({ transaction: tx, network });
-  console.log('withdraw txid:', result.txid);
-}
-
-// Usage:
-//   npx tsx interact.ts get-deposit <address>
-//   npx tsx interact.ts get-loan    <address>
-//   SENDER_KEY=<hex> npx tsx interact.ts deposit  <stx>
-//   SENDER_KEY=<hex> npx tsx interact.ts borrow   <stx> <collateral-stx>
-//   SENDER_KEY=<hex> npx tsx interact.ts repay
-//   SENDER_KEY=<hex> npx tsx interact.ts withdraw <stx>
 
 const [action, ...args] = process.argv.slice(2);
-const senderKey = process.env.SENDER_KEY ?? '';
 
 switch (action) {
-  case 'get-deposit': await getDeposit(args[0]); break;
-  case 'get-loan':    await getLoan(args[0]);    break;
-  case 'deposit':     await deposit(senderKey, Number(args[0])); break;
-  case 'borrow':      await borrow(senderKey, Number(args[0]), Number(args[1])); break;
-  case 'repay':       await repay(senderKey); break;
-  case 'withdraw':    await withdraw(senderKey, Number(args[0])); break;
-  default: console.log('Unknown action:', action);
+  case 'get-deposit':
+    console.log('Deposit (uSTX):', await readOnly(POOL_ADDR, POOL_NAME, 'get-deposit', [standardPrincipalCV(args[0])], args[0]));
+    break;
+  case 'get-loan':
+    console.log('Loan:', await readOnly(POOL_ADDR, POOL_NAME, 'get-loan', [standardPrincipalCV(args[0])], args[0]));
+    break;
+  case 'get-streak':
+    console.log('Streak:', await readOnly(CHECKIN_ADDR, CHECKIN_NAME, 'get-streak', [standardPrincipalCV(args[0])], args[0]));
+    break;
+  case 'deposit':
+    await send(POOL_ADDR, POOL_NAME, 'deposit', [uintCV(Number(args[0]) * 1_000_000)]);
+    break;
+  case 'withdraw':
+    await send(POOL_ADDR, POOL_NAME, 'withdraw', [uintCV(Number(args[0]) * 1_000_000)]);
+    break;
+  case 'borrow':
+    await send(POOL_ADDR, POOL_NAME, 'borrow', [uintCV(Number(args[0]) * 1_000_000), uintCV(Number(args[1]) * 1_000_000)]);
+    break;
+  case 'repay':
+    await send(POOL_ADDR, POOL_NAME, 'repay', []);
+    break;
+  case 'checkin':
+    await send(CHECKIN_ADDR, CHECKIN_NAME, 'check-in', []);
+    break;
+  default:
+    console.log('Unknown action:', action);
+    console.log('Actions: get-deposit, get-loan, get-streak, deposit, withdraw, borrow, repay, checkin');
 }
