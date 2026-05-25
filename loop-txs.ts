@@ -1,33 +1,65 @@
 /**
  * loop-txs.ts - High-volume transaction loop for Nexus Protocol
- *
- * Strategy: send deposits rapidly (one per ~5s), then withdraw all at end.
- * Deposits confirm independently; single withdraw at the end clears balance.
+ * Supports pause/resume — progress saved to .loop-progress.json
  *
  * Usage:
- *   SENDER_KEY=<hex> npx tsx loop-txs.ts [cycles] [checkin]
+ *   SENDER_KEY=<hex> npm run loop:checkin          # 1000 cycles + checkin
+ *   SENDER_KEY=<hex> npm run loop -- 500           # custom cycles
+ *   SENDER_KEY=<hex> npm run loop -- 500 checkin   # custom + checkin
+ *
+ * Pause:  Ctrl+C
+ * Resume: run the same command again — it continues from last saved cycle
+ * Reset:  delete .loop-progress.json
  */
 import {
   makeContractCall, PostConditionMode, uintCV, serializeTransaction,
 } from '@stacks/transactions';
 import { STACKS_MAINNET } from '@stacks/network';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 const POOL_ADDR    = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const POOL_NAME    = 'lending-pool';
 const CHECKIN_ADDR = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const CHECKIN_NAME = 'nexus-checkin';
 const SENDER_ADDR  = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
+const PROGRESS_FILE = '.loop-progress.json';
 
 const network    = STACKS_MAINNET;
 const senderKey  = process.env.SENDER_KEY!;
-const CYCLES     = Number(process.argv[2] ?? 100);
+const CYCLES     = Number(process.argv[2] ?? 1000);
 const DO_CHECKIN = process.argv[3] === 'checkin';
-const FEE        = 2_000;   // 0.002 STX per tx
-const AMOUNT     = 1_000;   // 0.001 STX per deposit
-const TX_DELAY   = 3_000;   // 3s between txs (safe for mempool)
+const FEE        = 2_000;
+const AMOUNT     = 1_000;
+const TX_DELAY   = 3_000;
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
+// ── Progress tracking ─────────────────────────────────────────────────────────
+interface Progress { completedCycles: number; checkinDone: boolean; deposited: number; }
+
+function loadProgress(): Progress {
+  if (existsSync(PROGRESS_FILE)) {
+    try {
+      const p = JSON.parse(readFileSync(PROGRESS_FILE, 'utf8')) as Progress;
+      console.log(`\n⏩ Resuming from cycle ${p.completedCycles}/${CYCLES} (${p.deposited} uSTX deposited)\n`);
+      return p;
+    } catch {}
+  }
+  return { completedCycles: 0, checkinDone: false, deposited: 0 };
+}
+
+function saveProgress(p: Progress) {
+  writeFileSync(PROGRESS_FILE, JSON.stringify(p, null, 2));
+}
+
+function clearProgress() {
+  if (existsSync(PROGRESS_FILE)) {
+    const { unlinkSync } = require('fs');
+    unlinkSync(PROGRESS_FILE);
+  }
+}
+
+// ── Network helpers ───────────────────────────────────────────────────────────
 async function broadcast(hexStr: string): Promise<{ txid?: string; error?: string; reason?: string }> {
   const res = await fetch('https://api.mainnet.hiro.so/v2/transactions', {
     method: 'POST',
@@ -55,10 +87,10 @@ async function sendTx(addr: string, name: string, fn: string, args: any[], nonce
     });
     const result = await broadcast(serializeTransaction(tx));
     if (result.error || result.reason) {
-      console.error(`  ❌ [${fn}] nonce:${nonce} - ${result.reason ?? result.error}`);
+      console.error(`  ❌ [${fn}] nonce:${nonce} — ${result.reason ?? result.error}`);
       return false;
     }
-    console.log(`  ✅ [${fn}] nonce:${nonce} | txid: ${result.txid}`);
+    console.log(`  ✅ [${fn}] nonce:${nonce} | ${result.txid}`);
     return true;
   } catch (e: any) {
     console.error(`  ❌ [${fn}] ERROR: ${e.message}`);
@@ -67,42 +99,50 @@ async function sendTx(addr: string, name: string, fn: string, args: any[], nonce
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
+const progress = loadProgress();
 let nonce = await getNonce();
-const totalTxs = CYCLES + (DO_CHECKIN ? 1 : 0) + 1; // deposits + checkin + 1 final withdraw
-const totalFees = (totalTxs * FEE / 1_000_000).toFixed(4);
 
-console.log(`\n⚡ Nexus Loop Starting`);
-console.log(`   Cycles:     ${CYCLES} deposits`);
-console.log(`   Check-in:   ${DO_CHECKIN}`);
-console.log(`   Start nonce:${nonce}`);
-console.log(`   Total txs:  ~${totalTxs}`);
-console.log(`   Total fees: ~${totalFees} STX`);
-console.log(`   Est. time:  ~${Math.ceil(totalTxs * TX_DELAY / 60000)} min\n`);
+const remaining = CYCLES - progress.completedCycles;
+console.log(`⚡ Nexus Loop`);
+console.log(`   Target:    ${CYCLES} cycles | Remaining: ${remaining}`);
+console.log(`   Check-in:  ${DO_CHECKIN} | Done: ${progress.checkinDone}`);
+console.log(`   Nonce:     ${nonce} | Fee: ${FEE} uSTX/tx`);
+console.log(`   Est. time: ~${Math.ceil(remaining * TX_DELAY / 60000)} min`);
+console.log(`   Pause:     Ctrl+C (progress saved, rerun to resume)\n`);
 
-if (DO_CHECKIN) {
+// Graceful shutdown — save progress on Ctrl+C
+process.on('SIGINT', () => {
+  console.log('\n\n⏸  Paused. Run the same command to resume.');
+  process.exit(0);
+});
+
+// Check-in (once per session if not done)
+if (DO_CHECKIN && !progress.checkinDone) {
   await sendTx(CHECKIN_ADDR, CHECKIN_NAME, 'check-in', [], nonce++);
+  progress.checkinDone = true;
+  saveProgress(progress);
   await sleep(TX_DELAY);
 }
 
-// Send all deposits sequentially with incrementing nonce
-let deposited = 0;
-for (let i = 0; i < CYCLES; i++) {
-  process.stdout.write(`\r  Deposit ${i + 1}/${CYCLES} (nonce ${nonce})...`);
+// Deposit loop
+for (let i = progress.completedCycles; i < CYCLES; i++) {
+  process.stdout.write(`\r  Cycle ${i + 1}/${CYCLES} (nonce ${nonce})  `);
   const ok = await sendTx(POOL_ADDR, POOL_NAME, 'deposit', [uintCV(AMOUNT)], nonce++);
-  if (ok) deposited++;
+  if (ok) {
+    progress.deposited += AMOUNT;
+    progress.completedCycles = i + 1;
+    saveProgress(progress);
+  }
   await sleep(TX_DELAY);
 }
 
-console.log(`\n\n  ${deposited}/${CYCLES} deposits sent. Waiting 2 min for confirmations before withdraw...\n`);
+// Final withdraw
+console.log(`\n\n  All ${CYCLES} deposits sent. Waiting 2 min before withdraw...`);
 await sleep(120_000);
 
-// Single withdraw for total accumulated amount
-if (deposited > 0) {
-  const withdrawAmount = deposited * AMOUNT;
-  console.log(`  Withdrawing ${withdrawAmount} uSTX (${withdrawAmount / 1e6} STX)...`);
-  // Re-fetch nonce in case of any drift
-  nonce = await getNonce();
-  await sendTx(POOL_ADDR, POOL_NAME, 'withdraw', [uintCV(withdrawAmount)], nonce);
-}
+nonce = await getNonce();
+console.log(`  Withdrawing ${progress.deposited} uSTX...`);
+await sendTx(POOL_ADDR, POOL_NAME, 'withdraw', [uintCV(progress.deposited)], nonce);
 
-console.log(`\n✅ Done! Sent ~${deposited + (DO_CHECKIN ? 1 : 0) + 1} transactions.`);
+clearProgress();
+console.log(`\n✅ Done! Total cycles completed: ${progress.completedCycles}`);

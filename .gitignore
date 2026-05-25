@@ -8,3 +8,4 @@ coverage/
 .clarinet/
 frontend/dist/
 frontend/node_modules/
+.loop-progress.json
