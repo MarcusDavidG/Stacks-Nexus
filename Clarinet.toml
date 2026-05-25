@@ -23,3 +23,11 @@ check_checker = { trusted_sender = false, trusted_caller = false, callee_filter 
 [contracts.lending-pool]
 path = "contracts/lending-pool.clar"
 epoch = "latest"
+
+[contracts.nexus-checkin]
+path = "contracts/nexus-checkin.clar"
+epoch = "latest"
+
+[contracts.nexus-polls]
+path = "contracts/nexus-polls.clar"
+epoch = "latest"
