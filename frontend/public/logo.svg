@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c6fff"/>
+      <stop offset="100%" stop-color="#ff6b35"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c6fff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ff6b35" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer ring -->
+  <circle cx="100" cy="100" r="90" stroke="url(#g1)" stroke-width="3" fill="url(#g2)"/>
+  <!-- Inner hexagon -->
+  <polygon points="100,30 160,65 160,135 100,170 40,135 40,65"
+    stroke="url(#g1)" stroke-width="2" fill="none" opacity="0.5"/>
+  <!-- N letterform -->
+  <path d="M60 130 L60 70 L100 120 L140 70 L140 130"
+    stroke="url(#g1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Center dot -->
+  <circle cx="100" cy="100" r="6" fill="url(#g1)"/>
+  <!-- Orbit dots -->
+  <circle cx="100" cy="18" r="4" fill="#7c6fff"/>
+  <circle cx="100" cy="182" r="4" fill="#ff6b35"/>
+  <circle cx="18" cy="100" r="3" fill="#7c6fff" opacity="0.6"/>
+  <circle cx="182" cy="100" r="3" fill="#ff6b35" opacity="0.6"/>
+</svg>
