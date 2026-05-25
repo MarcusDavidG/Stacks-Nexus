@@ -1,4 +1,4 @@
-;; nexus-checkin.clar — Daily check-in with streak tracking
+;; nexus-checkin.clar - Daily check-in with streak tracking
 ;; Each wallet can check in once per block; streak increments if within 2 days (~288 blocks)
 
 (define-constant BLOCKS-PER-DAY u144)

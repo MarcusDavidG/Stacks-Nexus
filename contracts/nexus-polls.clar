@@ -1,4 +1,4 @@
-;; nexus-polls.clar — Lightweight on-chain polling
+;; nexus-polls.clar - Lightweight on-chain polling
 ;; Owner creates polls; any wallet votes once per poll
 
 (define-constant CONTRACT-OWNER tx-sender)
