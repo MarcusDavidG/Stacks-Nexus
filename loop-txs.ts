@@ -37,19 +37,23 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 // ── Progress tracking ─────────────────────────────────────────────────────────
 interface Progress { completedCycles: number; checkinDone: boolean; deposited: number; }
 
-function loadProgress(): Progress {
+function loadProgress(cycles: number): Progress {
   if (existsSync(PROGRESS_FILE)) {
     try {
-      const p = JSON.parse(readFileSync(PROGRESS_FILE, 'utf8')) as Progress;
-      console.log(`\n⏩ Resuming from cycle ${p.completedCycles}/${CYCLES} (${p.deposited} uSTX deposited)\n`);
-      return p;
+      const p = JSON.parse(readFileSync(PROGRESS_FILE, 'utf8')) as Progress & { target?: number };
+      if (p.target === cycles) {
+        console.log(`\n⏩ Resuming from cycle ${p.completedCycles}/${cycles} (${p.deposited} uSTX deposited)\n`);
+        return p;
+      }
+      // Different target — start fresh
+      unlinkSync(PROGRESS_FILE);
     } catch {}
   }
   return { completedCycles: 0, checkinDone: false, deposited: 0 };
 }
 
-function saveProgress(p: Progress) {
-  writeFileSync(PROGRESS_FILE, JSON.stringify(p, null, 2));
+function saveProgress(p: Progress, cycles: number) {
+  writeFileSync(PROGRESS_FILE, JSON.stringify({ ...p, target: cycles }, null, 2));
 }
 
 function clearProgress() {
@@ -98,7 +102,7 @@ async function sendTx(addr: string, name: string, fn: string, args: any[], nonce
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-const progress = loadProgress();
+const progress = loadProgress(CYCLES);
 let nonce = await getNonce();
 
 const remaining = CYCLES - progress.completedCycles;
@@ -119,7 +123,7 @@ process.on('SIGINT', () => {
 if (DO_CHECKIN && !progress.checkinDone) {
   await sendTx(CHECKIN_ADDR, CHECKIN_NAME, 'check-in', [], nonce++);
   progress.checkinDone = true;
-  saveProgress(progress);
+  saveProgress(progress, CYCLES);
   await sleep(TX_DELAY);
 }
 
@@ -130,7 +134,7 @@ for (let i = progress.completedCycles; i < CYCLES; i++) {
   if (ok) {
     progress.deposited += AMOUNT;
     progress.completedCycles = i + 1;
-    saveProgress(progress);
+    saveProgress(progress, CYCLES);
   }
   await sleep(TX_DELAY);
 }
