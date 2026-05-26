@@ -46,9 +46,9 @@ export default function HeroStats() {
 }
 
 const s = {
-  grid:  { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1px', background: '#1a1a26', borderRadius: 12, overflow: 'hidden', border: '1px solid #1a1a26' },
-  stat:  { background: '#12121a', padding: '1.25rem 1rem', textAlign: 'center' },
+  grid:  { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1px', background: 'var(--border)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)' },
+  stat:  { background: 'var(--bg2)', padding: '1.25rem 1rem', textAlign: 'center' },
   value: { fontSize: '1.6rem', fontWeight: 800, lineHeight: 1 },
   unit:  { fontSize: '0.9rem', fontWeight: 500, marginLeft: 2 },
-  label: { fontSize: '0.72rem', color: '#5a5a70', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 },
+  label: { fontSize: '0.72rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 6 },
 };

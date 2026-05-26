@@ -6,16 +6,9 @@ export default function Logo({ size = 40, animated = false }) {
       style={{ display: 'flex', alignItems: 'center', gap: 10 }}
       initial={animated ? { opacity: 0, x: -20 } : false}
       animate={animated ? { opacity: 1, x: 0 } : false}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
     >
-      <motion.img
-        src="/logo.svg"
-        alt="Nexus"
-        width={size}
-        height={size}
-        animate={animated ? { rotate: [0, 360] } : false}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-      />
+      <img src="/logo.svg" alt="Nexus logo" width={size} height={size} />
       <span style={{
         fontSize: size * 0.55,
         fontWeight: 800,

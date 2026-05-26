@@ -51,9 +51,9 @@ export default function CheckInCard({ address, streak, onTx, onError }) {
 }
 
 const s = {
-  card:   { background: 'linear-gradient(135deg, #1a1530, #1e1020)', border: '1px solid #3a2a5a', borderRadius: 12, padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' },
+  card:   { background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 12, padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' },
   left:   { display: 'flex', alignItems: 'center', gap: '1rem' },
   flames: { display: 'flex', gap: 2, alignItems: 'flex-end' },
-  title:  { fontSize: '1.1rem', fontWeight: 700, color: '#d0b0ff' },
-  sub:    { fontSize: '0.82rem', color: '#8060a0', marginTop: 2 },
+  title:  { fontSize: '1.1rem', fontWeight: 700, color: 'var(--purple2)' },
+  sub:    { fontSize: '0.82rem', color: 'var(--text2)', marginTop: 2 },
 };

@@ -12,24 +12,34 @@ import HeroStats     from './components/HeroStats';
 import StatusBar     from './components/StatusBar';
 import { CONTRACTS, readOnly } from './lib/contracts';
 
-const appConfig  = new AppConfig(['store_write', 'publish_data']);
+const appConfig   = new AppConfig(['store_write', 'publish_data']);
 const userSession = new UserSession({ appConfig });
 
 export default function App() {
-  const [address, setAddress] = useState('');
-  const [status,  setStatus]  = useState('');
-  const [deposit, setDeposit] = useState(null);
-  const [loan,    setLoan]    = useState(null);
-  const [streak,  setStreak]  = useState(null);
-  const [poll,    setPoll]    = useState(null);
-  const [pollId,  setPollId]  = useState(0);
-  const [hasVoted,setHasVoted]= useState(false);
+  const [address,  setAddress]  = useState('');
+  const [status,   setStatus]   = useState('');
+  const [deposit,  setDeposit]  = useState(null);
+  const [loan,     setLoan]     = useState(null);
+  const [streak,   setStreak]   = useState(null);
+  const [poll,     setPoll]     = useState(null);
+  const [pollId,   setPollId]   = useState(0);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [theme,    setTheme]    = useState(() => localStorage.getItem('nexus-theme') ?? 'dark');
+
+  // Apply theme to <html>
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('nexus-theme', theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(t => t === 'dark' ? 'light' : 'dark');
+  }
 
   // ── Wallet ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (userSession.isUserSignedIn()) {
-      const addr = userSession.loadUserData().profile.stxAddress.mainnet;
-      setAddress(addr);
+      setAddress(userSession.loadUserData().profile.stxAddress.mainnet);
     }
   }, []);
 
@@ -37,10 +47,7 @@ export default function App() {
     showConnect({
       appDetails: { name: 'Nexus Protocol', icon: window.location.origin + '/logo.svg' },
       redirectTo: '/',
-      onFinish: () => {
-        const addr = userSession.loadUserData().profile.stxAddress.mainnet;
-        setAddress(addr);
-      },
+      onFinish: () => setAddress(userSession.loadUserData().profile.stxAddress.mainnet),
       userSession,
     });
   }
@@ -71,35 +78,30 @@ export default function App() {
     }
   }, []);
 
-  useEffect(() => {
-    if (address) loadUser(address);
-  }, [address, loadUser]);
+  useEffect(() => { if (address) loadUser(address); }, [address, loadUser]);
+  useEffect(() => { loadPoll(pollId, address || null); }, [pollId, address, loadPoll]);
 
-  useEffect(() => {
-    loadPoll(pollId, address || null);
-  }, [pollId, address, loadPoll]);
-
-  // ── Tx callbacks ─────────────────────────────────────────────────────────────
   function onTx(txId) {
     setStatus(`✅ Transaction submitted — txid: ${txId}`);
     setTimeout(() => { if (address) loadUser(address); }, 8000);
   }
 
-  function onError(msg) {
-    setStatus(`❌ ${msg}`);
-  }
+  function onError(msg) { setStatus(`❌ ${msg}`); }
 
-  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div style={s.page}>
-      {/* Animated background blobs */}
       <div style={s.blob1} />
       <div style={s.blob2} />
 
-      <Navbar address={address} onConnect={connectWallet} onDisconnect={disconnectWallet} />
+      <Navbar
+        address={address}
+        onConnect={connectWallet}
+        onDisconnect={disconnectWallet}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <main style={s.main}>
-        {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -127,22 +129,12 @@ export default function App() {
         </motion.div>
 
         <HeroStats />
-
         <CheckInCard address={address} streak={streak} onTx={onTx} onError={onError} />
-
-        {address && (
-          <UserDashboard address={address} deposit={deposit} loan={loan} streak={streak} />
-        )}
-
+        {address && <UserDashboard address={address} deposit={deposit} loan={loan} streak={streak} />}
         <LendingPanel address={address} loan={loan} onTx={onTx} onError={onError} />
-
         <PollCard
-          address={address}
-          poll={poll}
-          pollId={pollId}
-          hasVoted={hasVoted}
-          onTx={onTx}
-          onError={onError}
+          address={address} poll={poll} pollId={pollId}
+          hasVoted={hasVoted} onTx={onTx} onError={onError}
           onNav={(dir) => setPollId(Math.max(0, pollId + dir))}
         />
       </main>
@@ -161,17 +153,17 @@ export default function App() {
 }
 
 const s = {
-  page:        { minHeight: '100vh', background: '#0a0a0f', position: 'relative', overflow: 'hidden' },
-  blob1:       { position: 'fixed', top: -200, left: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,111,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' },
-  blob2:       { position: 'fixed', bottom: -200, right: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%)', pointerEvents: 'none' },
+  page:        { minHeight: '100vh', background: 'var(--bg)', position: 'relative', overflow: 'hidden', transition: 'background 0.25s' },
+  blob1:       { position: 'fixed', top: -200, left: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, var(--blob1) 0%, transparent 70%)', pointerEvents: 'none' },
+  blob2:       { position: 'fixed', bottom: -200, right: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, var(--blob2) 0%, transparent 70%)', pointerEvents: 'none' },
   main:        { maxWidth: 820, margin: '0 auto', padding: '2.5rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', zIndex: 1 },
   hero:        { textAlign: 'center', padding: '2rem 0 1rem' },
-  heroTitle:   { fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.15, color: '#e8e8f0', marginBottom: '1rem' },
+  heroTitle:   { fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.15, color: 'var(--text)', marginBottom: '1rem' },
   heroGradient:{ background: 'linear-gradient(135deg, #7c6fff, #ff6b35)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
-  heroSub:     { fontSize: '1rem', color: '#5a5a70', lineHeight: 1.7, marginBottom: '1.5rem' },
+  heroSub:     { fontSize: '1rem', color: 'var(--text3)', lineHeight: 1.7, marginBottom: '1.5rem' },
   heroCta:     { background: 'linear-gradient(135deg, #7c6fff, #9d6fff)', color: '#fff', border: 'none', borderRadius: 10, padding: '0.75rem 2rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(124,111,255,0.3)' },
-  footer:      { borderTop: '1px solid #1a1a26', padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', position: 'relative', zIndex: 1 },
-  footerText:  { fontSize: '0.78rem', color: '#3a3a50' },
+  footer:      { borderTop: '1px solid var(--border)', padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', position: 'relative', zIndex: 1 },
+  footerText:  { fontSize: '0.78rem', color: 'var(--text3)' },
   footerLinks: { display: 'flex', gap: '1rem' },
-  link:        { fontSize: '0.78rem', color: '#5a5a70', textDecoration: 'none' },
+  link:        { fontSize: '0.78rem', color: 'var(--text2)', textDecoration: 'none' },
 };

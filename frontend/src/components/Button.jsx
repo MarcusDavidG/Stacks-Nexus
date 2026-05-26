@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 
 const variants = {
-  primary:   { bg: '#7c6fff', color: '#fff', border: 'none' },
-  secondary: { bg: '#1a1a26', color: '#c0c0d0', border: '1px solid #2a2a3a' },
-  danger:    { bg: '#2a1a1a', color: '#f87171', border: '1px solid #4a2a2a' },
-  success:   { bg: '#1a2a1a', color: '#4ade80', border: '1px solid #2a4a2a' },
-  orange:    { bg: '#ff6b35', color: '#fff', border: 'none' },
-  ghost:     { bg: 'transparent', color: '#9090a8', border: '1px solid #2a2a3a' },
+  primary:   { bg: 'var(--purple)',  color: '#fff',           border: 'none' },
+  secondary: { bg: 'var(--bg3)',     color: 'var(--text2)',   border: '1px solid var(--border)' },
+  danger:    { bg: 'var(--bg3)',     color: 'var(--red)',     border: '1px solid var(--border)' },
+  success:   { bg: 'var(--bg3)',     color: 'var(--green)',   border: '1px solid var(--border)' },
+  orange:    { bg: 'var(--orange)',  color: '#fff',           border: 'none' },
+  ghost:     { bg: 'transparent',   color: 'var(--text2)',   border: '1px solid var(--border)' },
 };
 
 export default function Button({ children, variant = 'primary', disabled, onClick, fullWidth, size = 'md', style = {} }) {
