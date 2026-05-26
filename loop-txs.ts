@@ -16,6 +16,9 @@ import {
 } from '@stacks/transactions';
 import { STACKS_MAINNET } from '@stacks/network';
 import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
+import { generateWallet, generateNewAccount } from '@stacks/wallet-sdk';
+import { config } from 'dotenv';
+config();
 
 const POOL_ADDR    = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const POOL_NAME    = 'lending-pool-v2'; // v1 has broken withdraw; v2 is correct
@@ -25,10 +28,19 @@ const SENDER_ADDR  = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const PROGRESS_FILE = '.loop-progress.json';
 
 const network    = STACKS_MAINNET;
-const senderKey  = process.env.SENDER_KEY!;
-const CYCLES     = Number(process.argv[2] ?? 1000);
+const rawKey     = process.env.SENDER_KEY!;
+
+// Derive hex private key from mnemonic if needed
+function isMnemonic(k: string) { return k.trim().includes(' '); }
+async function resolveKey(k: string): Promise<string> {
+  if (!isMnemonic(k)) return k;
+  const wallet = generateNewAccount(await generateWallet({ secretKey: k.trim(), password: '' }));
+  return wallet.accounts[1].stxPrivateKey; // account 1 = SP3VD1Z3...
+}
+const senderKey = await resolveKey(rawKey);
+const CYCLES     = Number(process.argv[2] ?? 500);
 const DO_CHECKIN = process.argv[3] === 'checkin';
-const FEE        = 2_000;
+const FEE        = 1_000;
 const AMOUNT     = 1_000;
 const TX_DELAY   = 3_000;
 
@@ -70,7 +82,13 @@ async function broadcast(hexStr: string): Promise<{ txid?: string; error?: strin
     body: Buffer.from(hexStr, 'hex'),
   });
   const text = await res.text();
-  try { return JSON.parse(text); } catch { return { error: text }; }
+  try {
+    const json = JSON.parse(text);
+    return json;
+  } catch {
+    // Plain string txid on success
+    return { txid: text.replace(/"/g, '') };
+  }
 }
 
 async function getNonce(): Promise<number> {
@@ -141,6 +159,6 @@ for (let i = progress.completedCycles; i < CYCLES; i++) {
 
 // Final withdraw skipped — lending-pool v1 withdraw sends back to contract (known bug).
 // Deposits accumulate in the pool. All deposit txs count toward leaderboard.
-console.log(`\n\n  ✅ ${deposited}/${CYCLES} deposits complete. STX remains in pool.`);
+console.log(`\n\n  ✅ ${progress.deposited}/${CYCLES} deposits complete. STX remains in pool.`);
 clearProgress();
 console.log(`\n✅ Done! Total cycles completed: ${progress.completedCycles}`);

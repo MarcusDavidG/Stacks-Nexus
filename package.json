@@ -9,7 +9,7 @@
     "test:report": "vitest run -- --coverage --costs",
     "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\"",
     "loop": "npx tsx loop-txs.ts",
-    "loop:checkin": "npx tsx loop-txs.ts 1000 checkin",
+    "loop:checkin": "npx tsx loop-txs.ts 500 checkin",
     "deploy:engagement": "npx tsx deploy-engagement.ts",
     "seed:poll": "npx tsx seed-poll.ts"
   },
@@ -27,6 +27,7 @@
     "@stacks/wallet-sdk": "^7.2.0",
     "@types/node": "^24.4.0",
     "chokidar-cli": "^3.0.0",
+    "dotenv": "^17.4.2",
     "vitest": "^3.2.4",
     "vitest-environment-clarinet": "^2.3.0"
   }
