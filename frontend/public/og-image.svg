@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c6fff"/>
+      <stop offset="100%" stop-color="#ff6b35"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d0d18"/>
+      <stop offset="100%" stop-color="#0a0a0f"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="25%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#7c6fff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#7c6fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="80%" cy="70%" r="35%">
+      <stop offset="0%" stop-color="#ff6b35" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- Border -->
+  <rect x="1" y="1" width="1198" height="628" rx="0" stroke="url(#grad)" stroke-width="2" stroke-opacity="0.3"/>
+
+  <!-- Logo mark (hexagon + N) -->
+  <g transform="translate(120, 195)">
+    <polygon
+      points="120,10 218,65 218,175 120,230 22,175 22,65"
+      fill="none" stroke="url(#grad)" stroke-width="3.5" stroke-linejoin="round"
+    />
+    <!-- N left bar -->
+    <rect x="62" y="72" width="22" height="96" rx="5" fill="url(#grad)" filter="url(#glow)"/>
+    <!-- N right bar -->
+    <rect x="156" y="72" width="22" height="96" rx="5" fill="url(#grad)" filter="url(#glow)"/>
+    <!-- N diagonal -->
+    <path d="M84 76 L156 164" stroke="url(#grad)" stroke-width="22" stroke-linecap="round" filter="url(#glow)"/>
+    <!-- Accent dots -->
+    <circle cx="192" cy="52" r="7" fill="#ff6b35" opacity="0.9"/>
+    <circle cx="48"  cy="188" r="7" fill="#7c6fff" opacity="0.9"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="320" y="290"
+    font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+    font-size="96" font-weight="800" letter-spacing="-3"
+    fill="url(#grad)">
+    Nexus
+  </text>
+
+  <!-- Tagline -->
+  <text x="322" y="358"
+    font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+    font-size="28" font-weight="400" letter-spacing="0.5"
+    fill="#9090a8">
+    Connected Lending Protocol on Stacks
+  </text>
+
+  <!-- Pills -->
+  <g transform="translate(322, 400)">
+    <!-- Pill 1 -->
+    <rect width="110" height="36" rx="18" fill="#7c6fff" fill-opacity="0.15" stroke="#7c6fff" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="55" y="23" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#9d8fff">Deposit</text>
+    <!-- Pill 2 -->
+    <rect x="122" width="110" height="36" rx="18" fill="#7c6fff" fill-opacity="0.15" stroke="#7c6fff" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="177" y="23" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#9d8fff">Borrow</text>
+    <!-- Pill 3 -->
+    <rect x="244" width="110" height="36" rx="18" fill="#ff6b35" fill-opacity="0.12" stroke="#ff6b35" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="299" y="23" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#ff8c5a">Streaks</text>
+    <!-- Pill 4 -->
+    <rect x="366" width="120" height="36" rx="18" fill="#ff6b35" fill-opacity="0.12" stroke="#ff6b35" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="426" y="23" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#ff8c5a">Governance</text>
+  </g>
+
+  <!-- URL -->
+  <text x="322" y="570"
+    font-family="system-ui, sans-serif" font-size="20" fill="#3a3a50">
+    nexus-khaki-one.vercel.app
+  </text>
+</svg>
