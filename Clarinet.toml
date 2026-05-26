@@ -28,6 +28,10 @@ epoch = "latest"
 path = "contracts/nexus-checkin.clar"
 epoch = "latest"
 
+[contracts.nexus-xp]
+path = "contracts/nexus-xp.clar"
+epoch = "latest"
+
 [contracts.nexus-polls]
 path = "contracts/nexus-polls.clar"
 epoch = "latest"
