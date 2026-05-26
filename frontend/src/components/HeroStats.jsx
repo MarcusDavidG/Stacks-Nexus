@@ -1,13 +1,25 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const stats = [
-  { label: 'Total Value Locked', value: '—', unit: 'STX', color: '#7c6fff' },
-  { label: 'Active Borrowers',   value: '—', unit: '',    color: '#ff6b35' },
-  { label: 'Collateral Ratio',   value: '150', unit: '%', color: '#4ade80' },
-  { label: 'Interest Rate',      value: '1',   unit: '%', color: '#f59e0b' },
-];
+const CONTRACT = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP.lending-pool-v2';
 
 export default function HeroStats() {
+  const [tvl, setTvl] = useState(null);
+
+  useEffect(() => {
+    fetch(`https://api.mainnet.hiro.so/v2/accounts/${CONTRACT}?proof=0`)
+      .then(r => r.json())
+      .then(d => setTvl(d.balance ? (Number(BigInt(d.balance)) / 1_000_000).toFixed(2) : null))
+      .catch(() => {});
+  }, []);
+
+  const stats = [
+    { label: 'Total Value Locked', value: tvl ?? '…', unit: 'STX', color: '#7c6fff' },
+    { label: 'Collateral Ratio',   value: '150',        unit: '%',  color: '#4ade80' },
+    { label: 'Interest Rate',      value: '1',          unit: '%',  color: '#f59e0b' },
+    { label: 'Network',            value: 'Mainnet',    unit: '',   color: '#ff6b35' },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}

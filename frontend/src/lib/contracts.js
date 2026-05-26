@@ -5,7 +5,7 @@ export const network = STACKS_MAINNET;
 export const FEE = 2000;
 
 export const CONTRACTS = {
-  pool:    { addr: 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP', name: 'lending-pool' },
+  pool:    { addr: 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP', name: 'lending-pool-v2' },
   checkin: { addr: 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP', name: 'nexus-checkin' },
   polls:   { addr: 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP', name: 'nexus-polls' },
 };
