@@ -24,7 +24,7 @@ const POOL_ADDR    = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const POOL_NAME    = 'lending-pool-v2'; // v1 has broken withdraw; v2 is correct
 const CHECKIN_ADDR = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const CHECKIN_NAME = 'nexus-checkin';
-const SENDER_ADDR  = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
+const SENDER_ADDR  = 'SP2F07TCJ006F5E9DF9AGTGSW4TH9TCAMTYYWK0EM';
 const PROGRESS_FILE = '.loop-progress.json';
 
 const network    = STACKS_MAINNET;
@@ -35,7 +35,7 @@ function isMnemonic(k: string) { return k.trim().includes(' '); }
 async function resolveKey(k: string): Promise<string> {
   if (!isMnemonic(k)) return k;
   const wallet = generateNewAccount(await generateWallet({ secretKey: k.trim(), password: '' }));
-  return wallet.accounts[1].stxPrivateKey; // account 1 = SP3VD1Z3...
+  return wallet.accounts[0].stxPrivateKey; // account 0 = SP2F07TCJ...
 }
 const senderKey = await resolveKey(rawKey);
 const CYCLES     = Number(process.argv[2] ?? 500);
