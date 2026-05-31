@@ -15,7 +15,7 @@ const POOL_ADDR     = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const POOL_NAME     = 'lending-pool-v2';
 const CHECKIN_ADDR  = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
 const CHECKIN_NAME  = 'nexus-checkin';
-const SENDER_ADDR   = 'SP3VD1Z3MGKB0MRPBH8DS1ZKXNGYW66NH5R6W74XP';
+const SENDER_ADDR   = 'SP2F07TCJ006F5E9DF9AGTGSW4TH9TCAMTYYWK0EM';
 const PROGRESS_FILE = '.loop-progress.json';
 
 const network = STACKS_MAINNET;
@@ -24,15 +24,15 @@ const rawKey  = process.env.SENDER_KEY!;
 function isMnemonic(k: string) { return k.trim().includes(' '); }
 async function resolveKey(k: string): Promise<string> {
   if (!isMnemonic(k)) return k;
-  const wallet = generateNewAccount(await generateWallet({ secretKey: k.trim(), password: '' }));
-  return wallet.accounts[1].stxPrivateKey;
+  const wallet = await generateWallet({ secretKey: k.trim(), password: '' });
+  return wallet.accounts[0].stxPrivateKey; // account 0 = SP2F07TCJ006F5E9DF9AGTGSW4TH9TCAMTYYWK0EM
 }
 const senderKey = await resolveKey(rawKey);
 
 const CYCLES     = Number(process.argv[2] ?? 500);
 const DO_CHECKIN = process.argv[3] === 'checkin';
-const FEE        = 2_000;
-const AMOUNT     = 1_000;
+const FEE        = 1_000;
+const AMOUNT     = 500;     // 500 uSTX × 2000 = 1 STX deposits; fees 1000 × 2000 = 2 STX → 3 STX total
 const TX_DELAY   = 4_000;   // ms between txs — stay under rate limit
 const CHAIN_WAIT = 60_000;  // ms to wait when TooMuchChaining is hit
 
@@ -71,9 +71,9 @@ async function broadcast(hex: string): Promise<{ txid?: string; error?: string; 
 }
 
 async function getNonce(): Promise<number> {
-  const res = await fetch(`https://api.mainnet.hiro.so/v2/accounts/${SENDER_ADDR}?proof=0`);
-  const { nonce } = await res.json() as { nonce: number };
-  return nonce;
+  const res = await fetch(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/nonces`);
+  const data = await res.json() as { possible_next_nonce: number };
+  return data.possible_next_nonce;
 }
 
 async function getPending(): Promise<number> {
@@ -119,10 +119,13 @@ console.log(`   Pause: Ctrl+C\n`);
 
 process.on('SIGINT', () => { console.log('\n\n⏸  Paused.'); process.exit(0); });
 
-// Check-in once
+// Check-in once — skip gracefully if already done or rejected
 if (DO_CHECKIN && !progress.checkinDone) {
-  const ok = await sendTx(CHECKIN_ADDR, CHECKIN_NAME, 'check-in', [], nonce++);
-  if (ok === true) { progress.checkinDone = true; save(progress); }
+  const ok = await sendTx(CHECKIN_ADDR, CHECKIN_NAME, 'check-in', [], nonce);
+  if (ok === true) nonce++;
+  // Mark done regardless — don't let a failed check-in block the deposit loop
+  progress.checkinDone = true;
+  save(progress);
   await sleep(TX_DELAY);
 }
 
