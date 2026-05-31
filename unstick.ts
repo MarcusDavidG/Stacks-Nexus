@@ -35,10 +35,16 @@ if (detected_mempool_nonces.length === 0) {
   process.exit(0);
 }
 
-console.log(`Found ${detected_mempool_nonces.length} stuck nonces: ${detected_mempool_nonces.join(', ')}`);
+// Also fill any missing nonces (dropped txs that block the queue)
+const last_executed = await fetch(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/nonces`)
+  .then(r => r.json()) as any;
+const missing: number[] = last_executed.detected_missing_nonces ?? [];
+const allNonces = [...new Set([...missing, ...detected_mempool_nonces])].sort((a,b) => a-b);
+
+console.log(`Found ${allNonces.length} nonces to fix: ${allNonces.join(', ')}`);
 console.log(`Replacing with fee=${BUMP_FEE} uSTX...\n`);
 
-for (const nonce of detected_mempool_nonces) {
+for (const nonce of allNonces) {
   const tx = await makeContractCall({
     contractAddress: POOL_ADDR, contractName: POOL_NAME,
     functionName: 'deposit', functionArgs: [uintCV(1)],
