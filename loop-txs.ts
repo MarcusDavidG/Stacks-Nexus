@@ -33,9 +33,9 @@ const CYCLES      = Number(process.argv[2] ?? 500);
 const DO_CHECKIN  = process.argv[3] === 'checkin';
 const FEE         = 2_800;  // 2,800 uSTX × 3000 = 8.4 STX — spends full balance on gas
 const AMOUNT      = 1;      // 1 uSTX deposit — negligible
-const TX_DELAY    = 500;    // ms between txs within a batch — fast
-const BATCH_SIZE  = 20;     // send 20 txs then wait for them to confirm
-const BATCH_WAIT  = 70_000; // ms to wait for a batch to confirm (~1 block)
+const TX_DELAY    = 500;    // ms between txs within a batch
+const BATCH_SIZE  = 20;     // send 20 txs then wait for confirmation
+const BATCH_WAIT  = 600_000; // 10 min — one full Stacks block
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -149,8 +149,7 @@ for (let i = progress.completedCycles; i < CYCLES; ) {
       progress.completedCycles = cycle + 1;
       save(progress);
     } else if (result === 'chaining') {
-      // Shouldn't happen with batch size 20, but handle it
-      console.log(`\n  ⏳ TooMuchChaining — waiting for mempool...`);
+      console.log(`\n  ⏳ TooMuchChaining — waiting for block (~10 min)...`);
       await sleep(BATCH_WAIT);
       nonce = await getNonce();
     }
