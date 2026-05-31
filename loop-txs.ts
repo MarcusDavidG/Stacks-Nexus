@@ -60,8 +60,17 @@ function save(p: Progress) {
 }
 
 // ── Network ───────────────────────────────────────────────────────────────────
+async function fetchWithRetry(url: string, opts?: RequestInit, retries = 5): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try { return await fetch(url, opts); } catch {
+      if (i < retries - 1) await sleep(5_000 * (i + 1));
+    }
+  }
+  throw new Error(`fetch failed after ${retries} retries: ${url}`);
+}
+
 async function broadcast(hex: string): Promise<{ txid?: string; error?: string; reason?: string }> {
-  const res  = await fetch('https://api.mainnet.hiro.so/v2/transactions', {
+  const res  = await fetchWithRetry('https://api.mainnet.hiro.so/v2/transactions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/octet-stream' },
     body: Buffer.from(hex, 'hex'),
@@ -71,13 +80,13 @@ async function broadcast(hex: string): Promise<{ txid?: string; error?: string; 
 }
 
 async function getNonce(): Promise<number> {
-  const res = await fetch(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/nonces`);
+  const res = await fetchWithRetry(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/nonces`);
   const data = await res.json() as { possible_next_nonce: number };
   return data.possible_next_nonce;
 }
 
 async function getPending(): Promise<number> {
-  const res = await fetch(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/mempool?limit=1`);
+  const res = await fetchWithRetry(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/mempool?limit=1`);
   const { total } = await res.json() as { total: number };
   return total;
 }
