@@ -29,12 +29,13 @@ async function resolveKey(k: string): Promise<string> {
 }
 const senderKey = await resolveKey(rawKey);
 
-const CYCLES     = Number(process.argv[2] ?? 500);
-const DO_CHECKIN = process.argv[3] === 'checkin';
-const FEE        = 1_400;   // 1,400 uSTX × 2000 = 2.8 STX — bulk of spend is gas
-const AMOUNT     = 1;       // 1 uSTX deposit — negligible, gas dominates
-const TX_DELAY   = 4_000;   // ms between txs — stay under rate limit
-const CHAIN_WAIT = 60_000;  // ms to wait when TooMuchChaining is hit
+const CYCLES      = Number(process.argv[2] ?? 500);
+const DO_CHECKIN  = process.argv[3] === 'checkin';
+const FEE         = 1_400;
+const AMOUNT      = 1;
+const TX_DELAY    = 500;    // ms between txs within a batch — fast
+const BATCH_SIZE  = 20;     // send 20 txs then wait for them to confirm
+const BATCH_WAIT  = 70_000; // ms to wait for a batch to confirm (~1 block)
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -85,12 +86,6 @@ async function getNonce(): Promise<number> {
   return data.possible_next_nonce;
 }
 
-async function getPending(): Promise<number> {
-  const res = await fetchWithRetry(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/mempool?limit=1`);
-  const { total } = await res.json() as { total: number };
-  return total;
-}
-
 // Returns true on success, false on permanent failure, 'chaining' on TooMuchChaining
 async function sendTx(
   addr: string, name: string, fn: string, args: any[], nonce: number
@@ -138,37 +133,39 @@ if (DO_CHECKIN && !progress.checkinDone) {
   await sleep(TX_DELAY);
 }
 
-// Deposit loop
-for (let i = progress.completedCycles; i < CYCLES; i++) {
-  process.stdout.write(`\r  Cycle ${i + 1}/${CYCLES} (nonce ${nonce})  `);
+// Deposit loop — send in batches of BATCH_SIZE, wait for confirmation between batches
+for (let i = progress.completedCycles; i < CYCLES; ) {
+  const batchEnd = Math.min(i + BATCH_SIZE, CYCLES);
+  const batchCount = batchEnd - i;
 
-  const result = await sendTx(POOL_ADDR, POOL_NAME, 'deposit', [uintCV(AMOUNT)], nonce);
-
-  if (result === 'chaining') {
-    // Wait for mempool to drain, then re-fetch nonce and retry same cycle
-    console.log(`\n  ⏳ TooMuchChaining — waiting ${CHAIN_WAIT / 1000}s for mempool to clear...`);
-    await sleep(CHAIN_WAIT);
-    // Poll until pending drops below 10
-    let pending = await getPending();
-    while (pending >= 10) {
-      console.log(`  ⏳ Still ${pending} pending — waiting 30s...`);
-      await sleep(30_000);
-      pending = await getPending();
+  // Send batch
+  for (let j = 0; j < batchCount; j++) {
+    const cycle = i + j;
+    process.stdout.write(`\r  Cycle ${cycle + 1}/${CYCLES} (nonce ${nonce})  `);
+    const result = await sendTx(POOL_ADDR, POOL_NAME, 'deposit', [uintCV(AMOUNT)], nonce);
+    if (result === true) {
+      nonce++;
+      progress.deposited += AMOUNT;
+      progress.completedCycles = cycle + 1;
+      save(progress);
+    } else if (result === 'chaining') {
+      // Shouldn't happen with batch size 20, but handle it
+      console.log(`\n  ⏳ TooMuchChaining — waiting for mempool...`);
+      await sleep(BATCH_WAIT);
+      nonce = await getNonce();
     }
+    if (j < batchCount - 1) await sleep(TX_DELAY);
+  }
+
+  i = progress.completedCycles;
+
+  // Wait for batch to confirm before sending next batch
+  if (i < CYCLES) {
+    console.log(`\n  ⏸  Batch done (${i}/${CYCLES}) — waiting ${BATCH_WAIT / 1000}s for confirmation...`);
+    await sleep(BATCH_WAIT);
     nonce = await getNonce();
-    console.log(`  ▶ Resuming at nonce ${nonce}`);
-    i--; // retry this cycle
-    continue;
+    console.log(`  ▶ Next batch at nonce ${nonce}\n`);
   }
-
-  if (result === true) {
-    nonce++;
-    progress.deposited += AMOUNT;
-    progress.completedCycles = i + 1;
-    save(progress);
-  }
-
-  await sleep(TX_DELAY);
 }
 
 console.log(`\n\n✅ Done! ${progress.completedCycles}/${CYCLES} cycles completed.`);
