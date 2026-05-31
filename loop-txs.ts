@@ -33,9 +33,10 @@ const CYCLES      = Number(process.argv[2] ?? 500);
 const DO_CHECKIN  = process.argv[3] === 'checkin';
 const FEE         = 2_800;  // 2,800 uSTX × 3000 = 8.4 STX — spends full balance on gas
 const AMOUNT      = 1;      // 1 uSTX deposit — negligible
-const TX_DELAY    = 500;    // ms between txs within a batch
+const TX_DELAY    = 300;    // ms between txs within a batch
 const BATCH_SIZE  = 20;     // send 20 txs then wait for confirmation
-const BATCH_WAIT  = 600_000; // 10 min — one full Stacks block
+const BATCH_WAIT  = 15_000; // initial wait before polling
+const POLL_INTERVAL = 15_000; // poll every 15s until pending < 5
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -78,6 +79,22 @@ async function broadcast(hex: string): Promise<{ txid?: string; error?: string; 
   });
   const text = await res.text();
   try { return JSON.parse(text); } catch { return { txid: text.replace(/"/g, '') }; }
+}
+
+async function waitForMempool() {
+  await sleep(BATCH_WAIT);
+  let pending = await getPending();
+  while (pending >= 5) {
+    process.stdout.write(`\r  ⏳ ${pending} pending — waiting...  `);
+    await sleep(POLL_INTERVAL);
+    pending = await getPending();
+  }
+}
+
+async function getPending(): Promise<number> {
+  const res = await fetchWithRetry(`https://api.mainnet.hiro.so/extended/v1/address/${SENDER_ADDR}/mempool?limit=1`);
+  const { total } = await res.json() as { total: number };
+  return total;
 }
 
 async function getNonce(): Promise<number> {
@@ -150,7 +167,7 @@ for (let i = progress.completedCycles; i < CYCLES; ) {
       save(progress);
     } else if (result === 'chaining') {
       console.log(`\n  ⏳ TooMuchChaining — waiting for block (~10 min)...`);
-      await sleep(BATCH_WAIT);
+      await waitForMempool();
       nonce = await getNonce();
     }
     if (j < batchCount - 1) await sleep(TX_DELAY);
@@ -160,8 +177,8 @@ for (let i = progress.completedCycles; i < CYCLES; ) {
 
   // Wait for batch to confirm before sending next batch
   if (i < CYCLES) {
-    console.log(`\n  ⏸  Batch done (${i}/${CYCLES}) — waiting ${BATCH_WAIT / 1000}s for confirmation...`);
-    await sleep(BATCH_WAIT);
+    console.log(`\n  ⏸  Batch done (${i}/${CYCLES}) — waiting for mempool to clear...`);
+    await waitForMempool();
     nonce = await getNonce();
     console.log(`  ▶ Next batch at nonce ${nonce}\n`);
   }
