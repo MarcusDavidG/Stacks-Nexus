@@ -1,38 +1,38 @@
 # Nexus Protocol — Roadmap
 
 ## ✅ Shipped
-- Core lending pool (deposit, withdraw, borrow, repay)
-- Daily check-in streak system
-- Community polling / governance
+- Core lending pool (deposit, withdraw, borrow, repay) — `lending-pool-v2`
+- Daily check-in streak system — `nexus-checkin`
+- Community polling / governance — `nexus-polls`
 - Frontend: landing page, tabbed app dashboard, light/dark mode
+- BNS name resolution — `.btc` names shown throughout UI
 - XP / reputation system (frontend)
 - Leaderboard, referral, flash loan, liquidation monitor (frontend MVP)
+- Rich OG metadata + 1200×630 social preview banner
+- Transaction loop: 5,638 on-chain txs, wallet fully utilised
 
 ---
 
 ## 🔜 Next Up
 
-### BNS Name Resolution
-Resolve `.btc` names from the Bitcoin Name System and display them throughout the UI instead of raw addresses. One API call, big UX improvement.
-
 ### SIP-010 Receipt Token (`nxSTX`)
 Issue a transferable fungible token when users deposit STX. Represents pool share + accrued yield. Makes positions composable with other Stacks protocols.
+
+### Liquidation Mechanism
+On-chain Clarity contract to close under-collateralised loans. Liquidators earn a 5% bonus. Feeds the liquidation monitor UI already in place.
 
 ---
 
 ## 🗺️ Planned
 
-### Liquidation Mechanism
-On-chain Clarity contract to close under-collateralised loans. Liquidators earn a 5% bonus. Feeds the liquidation monitor UI already in place.
-
 ### Dynamic Interest Rates
 Utilisation-based rate model — rates rise as more of the pool is borrowed, fall when liquidity is idle.
 
 ### Stacking Rewards Passthrough
-Route idle pool liquidity into Stacks PoX Stacking. Share BTC yield with depositors — a feature unique to the Stacks blockchain.
+Route idle pool liquidity into Stacks PoX Stacking. Share BTC yield with depositors — unique to the Stacks blockchain.
 
 ### sBTC Collateral
-Accept sBTC as collateral once widely available, making Nexus a true Bitcoin-native lending market.
+Accept sBTC as collateral, making Nexus a true Bitcoin-native lending market.
 
 ### Flash Loans
 Uncollateralised single-block loans for arbitrage, liquidations, and collateral swaps. Frontend UI already built.
