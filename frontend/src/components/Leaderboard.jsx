@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { resolveBNS } from '../lib/bns';
 
 // Mock leaderboard — replace with real on-chain indexer data when available
 const MOCK = [
@@ -14,6 +15,16 @@ const TABS = ['XP', 'Deposits', 'Streak'];
 
 export default function Leaderboard({ address }) {
   const [tab, setTab] = useState('XP');
+  const [names, setNames] = useState({});
+
+  useEffect(() => {
+    MOCK.forEach(row => {
+      resolveBNS(row.addr).then(name => {
+        if (name) setNames(prev => ({ ...prev, [row.addr]: name }));
+      });
+    });
+  }, []);
+
   const sorted = [...MOCK].sort((a, b) =>
     tab === 'XP' ? b.xp - a.xp : tab === 'Deposits' ? b.deposits - a.deposits : b.streak - a.streak
   );
@@ -50,7 +61,10 @@ export default function Leaderboard({ address }) {
               transition={{ delay: i * 0.05 }}
             >
               <span style={s.medal}>{medal}</span>
-              <span style={s.addr}>{row.addr.slice(0, 8)}…{row.addr.slice(-4)}{isMe ? ' (you)' : ''}</span>
+              <span style={s.addr}>
+                {names[row.addr] ?? `${row.addr.slice(0, 8)}…${row.addr.slice(-4)}`}
+                {isMe ? ' (you)' : ''}
+              </span>
               <span style={s.val}>{val}</span>
             </motion.div>
           );

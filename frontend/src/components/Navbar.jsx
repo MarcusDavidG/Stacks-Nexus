@@ -1,8 +1,19 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Logo from './Logo';
 import Button from './Button';
+import { resolveBNS } from '../lib/bns';
 
 export default function Navbar({ address, onConnect, onDisconnect, theme, onToggleTheme }) {
+  const [bnsName, setBnsName] = useState(null);
+
+  useEffect(() => {
+    if (address) resolveBNS(address).then(setBnsName);
+    else setBnsName(null);
+  }, [address]);
+
+  const displayAddr = bnsName ?? (address ? `${address.slice(0, 6)}…${address.slice(-4)}` : '');
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -20,7 +31,7 @@ export default function Navbar({ address, onConnect, onDisconnect, theme, onTogg
         {address ? (
           <div style={s.connected}>
             <div style={s.dot} />
-            <span style={s.addr}>{address.slice(0, 6)}…{address.slice(-4)}</span>
+            <span style={s.addr}>{displayAddr}</span>
             <Button variant="ghost" size="sm" onClick={onDisconnect}>Disconnect</Button>
           </div>
         ) : (
