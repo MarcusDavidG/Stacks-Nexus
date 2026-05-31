@@ -31,7 +31,7 @@ const senderKey = await resolveKey(rawKey);
 
 const CYCLES      = Number(process.argv[2] ?? 500);
 const DO_CHECKIN  = process.argv[3] === 'checkin';
-const FEE         = 2_800;  // 2,800 uSTX × 3000 = 8.4 STX — spends full balance on gas
+const FEE         = 2_500;  // 2,500 uSTX × 2000 = 5 STX — spends remaining balance on gas
 const AMOUNT      = 1;      // 1 uSTX deposit — negligible
 const TX_DELAY    = 300;    // ms between txs within a batch
 const BATCH_SIZE  = 20;     // send 20 txs then wait for confirmation

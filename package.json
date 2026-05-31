@@ -9,7 +9,7 @@
     "test:report": "vitest run -- --coverage --costs",
     "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\"",
     "loop": "npx tsx loop-txs.ts",
-    "loop:checkin": "npx tsx loop-txs.ts 3000 checkin",
+    "loop:checkin": "npx tsx loop-txs.ts 2000 checkin",
     "deploy:engagement": "npx tsx deploy-engagement.ts",
     "seed:poll": "npx tsx seed-poll.ts"
   },
