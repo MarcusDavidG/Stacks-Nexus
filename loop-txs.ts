@@ -31,8 +31,8 @@ const senderKey = await resolveKey(rawKey);
 
 const CYCLES     = Number(process.argv[2] ?? 500);
 const DO_CHECKIN = process.argv[3] === 'checkin';
-const FEE        = 1_000;
-const AMOUNT     = 500;     // 500 uSTX × 2000 = 1 STX deposits; fees 1000 × 2000 = 2 STX → 3 STX total
+const FEE        = 1_400;   // 1,400 uSTX × 2000 = 2.8 STX — bulk of spend is gas
+const AMOUNT     = 1;       // 1 uSTX deposit — negligible, gas dominates
 const TX_DELAY   = 4_000;   // ms between txs — stay under rate limit
 const CHAIN_WAIT = 60_000;  // ms to wait when TooMuchChaining is hit
 
